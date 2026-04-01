@@ -37,8 +37,8 @@
     }
 
     .assistant-img{
-      width:260px;
-      max-width:82%;
+      width:300px;
+      max-width:86%;
       display:block;
       margin:6px auto 8px;
       filter:drop-shadow(0 0 24px rgba(120, 70, 255, 0.45));
@@ -137,11 +137,34 @@
       font-size:28px;
     }
 
-    #idea{
-      white-space:pre-line;
-      line-height:1.9;
-      font-size:18px;
+    .ideas-grid{
+      display:grid;
+      gap:16px;
+      margin-top:20px;
+    }
+
+    .idea-card{
+      background:linear-gradient(145deg,#0f1b3a,#0b1430);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:18px;
+      padding:18px;
+      line-height:1.8;
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+      transition:.2s;
       color:#e6e9f7;
+      font-size:18px;
+      white-space:pre-line;
+    }
+
+    .idea-card:hover{
+      transform:translateY(-4px);
+    }
+
+    .idea-title{
+      font-weight:bold;
+      margin-bottom:10px;
+      color:#f2cc62;
+      font-size:20px;
     }
 
     .mini-note{
@@ -154,8 +177,8 @@
 
     @media (max-width:700px){
       .assistant-img{
-        width:300px;
-        max-width:88%;
+        width:340px;
+        max-width:92%;
       }
 
       h1{
@@ -177,7 +200,7 @@
         font-size:17px;
       }
 
-      #idea{
+      .idea-card{
         font-size:16px;
         line-height:1.8;
       }
@@ -185,13 +208,16 @@
       .result h2{
         font-size:24px;
       }
+
+      .idea-title{
+        font-size:18px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <img src="logo.png" alt="FİKRÂ Logo" class="top-logo">
-
     <img src="assistant.png" alt="FİKRÂ Asistanı" class="assistant-img">
 
     <h1>FİKRÂ</h1>
@@ -211,7 +237,9 @@
 
     <div class="result">
       <h2>FİKRÂ öneriyor</h2>
-      <div id="idea">Henüz fikir yok...</div>
+      <div id="ideas-container" class="ideas-grid">
+        <div class="idea-card">Henüz fikir yok...</div>
+      </div>
     </div>
 
     <div class="mini-note">
@@ -222,14 +250,14 @@
   <script>
     async function getIdea() {
       const mesaj = document.getElementById("mesaj").value.trim();
-      const ideaBox = document.getElementById("idea");
+      const container = document.getElementById("ideas-container");
 
       if (!mesaj) {
-        ideaBox.innerText = "Lütfen bir konu yaz.";
+        container.innerHTML = "<div class='idea-card'>Lütfen bir konu yaz.</div>";
         return;
       }
 
-      ideaBox.innerText = "FİKRÂ düşünüyor...";
+      container.innerHTML = "<div class='idea-card'>FİKRÂ düşünüyor...</div>";
 
       try {
         const res = await fetch("/api/fikir", {
@@ -243,21 +271,60 @@
         const data = await res.json();
 
         if (!res.ok) {
-          ideaBox.innerText = data?.fikir || "Bir hata oluştu.";
+          container.innerHTML = `<div class="idea-card">${escapeHtml(data?.fikir || "Bir hata oluştu.")}</div>`;
           return;
         }
 
-        ideaBox.innerText = data?.fikir || "Şu anda fikir üretilemedi.";
+        const text = data?.fikir || "Şu anda fikir üretilemedi.";
+        const parts = text
+          .split("────────────")
+          .map(part => part.trim())
+          .filter(Boolean);
+
+        container.innerHTML = "";
+
+        if (parts.length <= 1) {
+          const card = document.createElement("div");
+          card.className = "idea-card";
+          card.innerHTML = formatCardHtml("FİKRÂ cevabı", text);
+          container.appendChild(card);
+          return;
+        }
+
+        parts.forEach((part, i) => {
+          const card = document.createElement("div");
+          card.className = "idea-card";
+          card.innerHTML = formatCardHtml(`Fikir ${i + 1}`, part);
+          container.appendChild(card);
+        });
+
       } catch (err) {
-        ideaBox.innerText = "Hata oluştu.";
+        container.innerHTML = "<div class='idea-card'>Hata oluştu.</div>";
       }
     }
 
     function clearIdea() {
       document.getElementById("mesaj").value = "";
-      document.getElementById("idea").innerText = "Henüz fikir yok...";
+      document.getElementById("ideas-container").innerHTML =
+        "<div class='idea-card'>Henüz fikir yok...</div>";
       document.getElementById("mesaj").focus();
+    }
+
+    function formatCardHtml(title, content) {
+      return `
+        <div class="idea-title">${escapeHtml(title)}</div>
+        ${escapeHtml(content).replace(/\n/g, "<br>")}
+      `;
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
   </script>
 </body>
-  </html>
+</html>
