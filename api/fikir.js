@@ -8,37 +8,35 @@ export default async function handler(req, res) {
 
     const { mesaj } = req.body;
 
-    if (!mesaj) {
-      return res.status(400).json({ fikir: "Mesaj boş" });
-    }
-
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",
-        input: `Kullanıcıya Türkçe, net, kısa ama güçlü bir fikir ver:\n${mesaj}`
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "Sen FİKRÂ adında yapay fikir asistanısın. Türkçe, net ve güçlü fikirler ver."
+          },
+          {
+            role: "user",
+            content: mesaj
+          }
+        ]
       })
     });
 
     const data = await response.json();
 
-    console.log("OPENAI DATA:", JSON.stringify(data));
-
     if (!response.ok) {
-      return res.status(500).json({ fikir: "OpenAI hata verdi" });
+      console.log("OPENAI ERROR:", data);
+      return res.status(500).json({ fikir: "AI hata verdi" });
     }
 
-    let fikir = "Fikir üretilemedi";
-
-    if (data.output && data.output[0]?.content) {
-      fikir = data.output[0].content[0].text;
-    } else if (data.output_text) {
-      fikir = data.output_text;
-    }
+    const fikir = data.choices[0].message.content;
 
     return res.status(200).json({ fikir });
 
