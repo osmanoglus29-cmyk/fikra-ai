@@ -13,7 +13,6 @@
       --bg-1:#04070f;
       --bg-2:#091120;
       --panel:rgba(11,22,48,.84);
-      --panel-2:rgba(15,27,58,.92);
       --border:rgba(255,255,255,.08);
       --text:#ffffff;
       --muted:#b8c0dd;
@@ -342,10 +341,12 @@
       .actions{
         width:100%;
         flex-direction:row;
+        flex-wrap:wrap;
       }
 
       .actions button{
         flex:1;
+        min-width:140px;
       }
 
       .chat-body{
@@ -451,6 +452,7 @@ Ne hakkında fikir istiyorsun?
 
           <div class="actions">
             <button onclick="getIdea()">Fikir Ver</button>
+            <button class="secondary" onclick="getMoreIdeas()">Başka fikir ver</button>
             <button class="secondary" onclick="clearChat()">Temizle</button>
           </div>
         </div>
@@ -463,6 +465,8 @@ Ne hakkında fikir istiyorsun?
   </div>
 
   <script>
+    let lastPrompt = "";
+
     function escapeHtml(text) {
       return String(text)
         .replace(/&/g, "&amp;")
@@ -554,14 +558,13 @@ Ne hakkında fikir istiyorsun?
       scrollChatToBottom();
     }
 
-    async function getIdea() {
-      const input = document.getElementById("mesaj");
-      const mesaj = input.value.trim();
-
+    async function requestIdeas(mesaj, showUserMessage = true) {
       if (!mesaj) return;
 
-      addUserMessage(mesaj);
-      input.value = "";
+      if (showUserMessage) {
+        addUserMessage(mesaj);
+      }
+
       addTypingMessage();
 
       try {
@@ -588,6 +591,67 @@ Ne hakkında fikir istiyorsun?
       }
     }
 
+    async function getIdea() {
+      const input = document.getElementById("mesaj");
+      const mesaj = input.value.trim();
+
+      if (!mesaj) return;
+
+      lastPrompt = mesaj;
+      input.value = "";
+      await requestIdeas(mesaj, true);
+    }
+
+    async function getMoreIdeas() {
+      const input = document.getElementById("mesaj");
+      const currentInput = input.value.trim();
+
+      let promptToUse = currentInput || lastPrompt;
+
+      if (!promptToUse) {
+        addAssistantMessage("Önce bir konu yaz ya da bir kez fikir al. Sonra sana başka fikirler de verebilirim.");
+        return;
+      }
+
+      lastPrompt = promptToUse;
+
+      const assistantPrompt = `${promptToUse}\n\nAynı konu için önceki cevapları tekrar etmeden 3 yeni fikir üret.`;
+
+      if (currentInput) {
+        input.value = "";
+        addUserMessage(promptToUse + " (başka fikirler)");
+        addTypingMessage();
+
+        try {
+          const res = await fetch("/api/fikir", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ mesaj: assistantPrompt })
+          });
+
+          const data = await res.json();
+          removeTypingMessage();
+
+          if (!res.ok) {
+            addAssistantMessage(data?.fikir || "Bir hata oluştu.");
+            return;
+          }
+
+          addAssistantMessage(data?.fikir || "Şu anda fikir üretilemedi.");
+        } catch (err) {
+          removeTypingMessage();
+          addAssistantMessage("Hata oluştu.");
+        }
+
+        return;
+      }
+
+      addAssistantMessage("Aynı konu için sana yeni fikirler üretiyorum...");
+      await requestIdeas(assistantPrompt, false);
+    }
+
     function clearChat() {
       const chatBody = document.getElementById("chatBody");
       chatBody.innerHTML = `
@@ -610,6 +674,7 @@ Ne hakkında fikir istiyorsun?
         </div>
       `;
       document.getElementById("mesaj").value = "";
+      lastPrompt = "";
       document.getElementById("mesaj").focus();
     }
 
