@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const mesaj = String(req.body?.mesaj || "").trim();
+    const mesaj = req.body?.mesaj;
 
     if (!mesaj) {
       return res.status(400).json({ fikir: "Lütfen bir konu yaz." });
@@ -13,17 +13,18 @@ export default async function handler(req, res) {
     const prompt = `
 Sen FİKRÂ adında güçlü bir yapay fikir asistanısın.
 
+Kurallar:
 - Türkçe yaz
 - 3 farklı fikir üret
-- detaylı ve yaratıcı olsun
-- her fikre başlık koy
+- uzun ve açıklamalı olsun
+- yaratıcı ol
+- başlıklar kullan
 
-Konu:
-${mesaj}
+Konu: ${mesaj}
 `;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -32,6 +33,7 @@ ${mesaj}
         body: JSON.stringify({
           contents: [
             {
+              role: "user",
               parts: [{ text: prompt }]
             }
           ]
@@ -41,8 +43,10 @@ ${mesaj}
 
     const data = await response.json();
 
+    // DEBUG için log
+    console.log("GEMINI RESPONSE:", JSON.stringify(data, null, 2));
+
     if (!response.ok) {
-      console.log("GEMINI ERROR:", data);
       return res.status(500).json({
         fikir: "Model hatası oluştu."
       });
