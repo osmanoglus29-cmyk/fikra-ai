@@ -14,12 +14,9 @@ body{
   text-align:center;
 }
 
-header{
-  padding:30px;
-}
-
 .logo{
-  width:80px;
+  width:90px;
+  margin-top:30px;
 }
 
 textarea{
@@ -28,13 +25,13 @@ textarea{
   padding:15px;
   border-radius:10px;
   border:none;
-  margin-top:10px;
+  margin-top:15px;
   background:#111827;
   color:#fff;
 }
 
 button{
-  padding:12px 18px;
+  padding:12px 20px;
   margin-top:10px;
   border:none;
   border-radius:10px;
@@ -47,12 +44,12 @@ button{
   background:#0b1220;
   padding:20px;
   border-radius:15px;
-  margin:15px auto;
+  margin:20px auto;
   max-width:600px;
   text-align:left;
 }
 
-#ideaText{
+#idea{
   white-space:pre-line;
   line-height:1.7;
 }
@@ -61,153 +58,53 @@ button{
 
 <body>
 
-<header>
 <img src="logo.png" class="logo">
+
 <h1>FİKRÂ</h1>
 <p>Yapay Fikir Asistanı</p>
-</header>
 
-<div>
 <textarea id="input" placeholder="Ne hakkında fikir istiyorsun?"></textarea>
 <br>
-<button onclick="generate()">Fikir Ver</button>
-</div>
+<button onclick="getIdea()">Fikir Ver</button>
 
 <div class="card">
-<h2 id="title">Fikir burada çıkacak</h2>
-<p id="ideaText">Yukarı yaz ve butona bas</p>
+<h2>FİKRÂ öneriyor</h2>
+<p id="idea">Henüz fikir yok...</p>
 </div>
 
 <script>
 
-function generate(){
+async function getIdea(){
 
-let text=document.getElementById("input").value.toLowerCase();
+const input=document.getElementById("input").value;
+const ideaBox=document.getElementById("idea");
 
-let topic="genel";
-
-if(text.includes("aşk") || text.includes("sevgi")) topic="aşk";
-else if(text.includes("motivasyon") || text.includes("istek")) topic="motivasyon";
-else if(text.includes("para") || text.includes("kazanç")) topic="para";
-else if(text.includes("yazılım") || text.includes("kod")) topic="yazılım";
-else if(text.includes("odak")) topic="odak";
-else if(text.includes("disiplin")) topic="disiplin";
-
-let result="";
-
-if(topic=="aşk"){
-result=`Aşk konusunda en önemli şey duygudan önce netliktir.
-
-Bir insan seni seviyorsa bunu davranışlarında görürsün. Sürekli kararsızlık, belirsizlik ve kafa karışıklığı varsa bu genelde güçlü bir bağ değildir.
-
-Önce kendine şu soruyu sor:
-"Ben bu ilişkide ne istiyorum?"
-
-Net değilsen, karşındaki insanın seni anlamasını bekleyemezsin.
-
-Bugün yapabileceğin şey:
-Duygularını yaz. Ne seni mutlu ediyor, ne yoruyor.
-
-Çünkü aşk önce kendini anlamakla başlar.`;
+if(!input){
+ideaBox.innerText="Bir şey yazman lazım.";
+return;
 }
 
-else if(topic=="motivasyon"){
-result=`Motivasyon eksikliği çoğu zaman tembellik değil sistem eksikliğidir.
+ideaBox.innerText="Düşünüyor...";
 
-Motivasyon gelmesini beklemek seni durdurur.
-Ama küçük bir eylem başlatmak seni harekete geçirir.
+try{
 
-5 dakika bile olsa başla.
+const res=await fetch("/api/fikir",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+mesaj:input
+})
+});
 
-Çünkü gerçek şu:
-Motivasyon hareketten sonra gelir.
+const data=await res.json();
 
-Bugün yap:
-Sadece 10 dakika çalış.
+ideaBox.innerText=data.fikir;
 
-Bu küçük başlangıç zinciri kırar.`;
+}catch(e){
+ideaBox.innerText="Hata oluştu";
 }
-
-else if(topic=="para"){
-result=`Para kazanmak kadar onu yönetmek de önemlidir.
-
-Birçok insan daha fazla kazanmak ister ama harcama düzenini kontrol etmez.
-
-Önce şunu yap:
-Paran nereye gidiyor bunu gör.
-
-Bugün yap:
-Tüm harcamalarını yaz.
-
-Çünkü kontrol = güçtür.
-
-Ve para aslında özgürlük aracıdır.`;
-}
-
-else if(topic=="yazılım"){
-result=`Yazılım öğrenmenin en hızlı yolu proje yapmaktır.
-
-Sadece video izleyerek gelişemezsin.
-
-Küçük bir şey yap:
-Bir site, bir form, basit bir uygulama.
-
-Hata alırsan korkma.
-Asıl gelişim orada başlar.
-
-Bugün yap:
-10 satır kod bile yaz.
-
-Çünkü yazmadan öğrenilmez.`;
-}
-
-else if(topic=="odak"){
-result=`Odak sorunu genelde dikkat değil, öncelik sorunudur.
-
-Aynı anda her şeyi yapmaya çalışırsan hiçbirini tam yapamazsın.
-
-Tek bir iş seç.
-
-Telefonu uzaklaştır.
-
-Bugün yap:
-1 saat sadece tek işe odaklan.
-
-Çünkü derinlik başarıyı getirir.`;
-}
-
-else if(topic=="disiplin"){
-result=`Disiplin, istemediğin günlerde yaptığın şeydir.
-
-Motivasyon seni başlatır ama disiplin seni bitirir.
-
-Küçük bir rutin kur.
-
-Bugün yap:
-Aynı saatte aynı işi yap.
-
-Çünkü tekrar = güçtür.`;
-}
-
-else{
-result=`Tam olarak ne istediğini biraz daha netleştirmen gerekiyor.
-
-Ama sana genel bir fikir:
-
-Hayatta ilerlemek için mükemmel zamanı bekleme.
-
-Küçük başla.
-
-Deneyerek öğren.
-
-Bugün yap:
-Tek bir küçük adım at.
-
-Çünkü netlik hareketten gelir.`;
-}
-
-document.getElementById("title").innerText="FİKRÂ öneriyor";
-document.getElementById("ideaText").innerText=result;
 
 }
 
