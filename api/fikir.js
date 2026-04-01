@@ -11,14 +11,34 @@ export default async function handler(req, res) {
     }
 
     const prompt = `
-Sen FİKRÂ adında güçlü bir yapay fikir asistanısın.
+Sen FİKRÂ adında Türkçe konuşan bir yapay fikir asistanısın.
 
+Kurallar:
 - Türkçe yaz
 - 3 farklı fikir üret
-- yaratıcı ve detaylı olsun
-- her fikre başlık koy
+- yaratıcı, uygulanabilir ve açıklamalı olsun
+- her fikir başlıkla başlasın
+- en sonda kısa bir "FİKRÂ notu" yaz
 
-Konu: ${mesaj}
+Cevap formatı şöyle olsun:
+
+FİKİR 1
+...
+
+────────────
+
+FİKİR 2
+...
+
+────────────
+
+FİKİR 3
+...
+
+FİKRÂ notu: ...
+
+Kullanıcı isteği:
+${mesaj}
 `;
 
     const response = await fetch(
@@ -40,22 +60,21 @@ Konu: ${mesaj}
 
     const data = await response.json();
 
-    console.log("GEMINI:", data);
+    console.log("GEMINI RESPONSE:", JSON.stringify(data));
 
     if (!response.ok) {
-      return res.status(500).json({
-        fikir: data?.error?.message || "Model hatası"
+      return res.status(response.status).json({
+        fikir: data?.error?.message || "Gemini model hatası oluştu."
       });
     }
 
     const fikir =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Fikir üretilemedi.";
+      "Şu anda fikir üretilemedi. Lütfen tekrar dene.";
 
     return res.status(200).json({ fikir });
-
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ fikir: "Sunucu hatası" });
+    console.log("SERVER ERROR:", error);
+    return res.status(500).json({ fikir: "Sunucu hatası oluştu." });
   }
 }
