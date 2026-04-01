@@ -10,64 +10,19 @@ export default async function handler(req, res) {
       return res.status(400).json({ fikir: "Lütfen bir konu yaz." });
     }
 
-    const text = mesaj.toLocaleLowerCase("tr-TR");
-
-    const unsafeWords = [
-      "intihar",
-      "kendime zarar",
-      "kendimi öldür",
-      "öldür",
-      "yarala",
-      "bomba",
-      "silah yap",
-      "zehir",
-      "uyuşturucu",
-      "hackleme",
-      "dolandırıcılık",
-      "patlayıcı"
-    ];
-
-    if (unsafeWords.some((w) => text.includes(w))) {
-      return res.status(200).json({
-        fikir:
-          "FİKRÂ bu konuda fikir veremez.\n\nBu konu tehlikeli, zarar verici ya da güvenlik açısından riskli görünüyor.\n\nİstersen bunun yerine güvenli ve yapıcı bir alternatif düşünebiliriz."
-      });
-    }
-
     const prompt = `
 Sen FİKRÂ adında güçlü bir yapay fikir asistanısın.
 
-Kurallar:
-- Türkçe yaz.
-- Kullanıcının konusuna göre 3 farklı fikir üret.
-- Fikirler yaratıcı, uygulanabilir ve dolu olsun.
-- Gereksiz uzatma yapma ama kısa da kesme.
-- Her fikir ayrı başlıkla başlasın.
-- En sonda kısa bir "FİKRÂ notu" ekle.
+- Türkçe yaz
+- 3 farklı fikir üret
+- yaratıcı ve detaylı olsun
+- her fikre başlık koy
 
-Cevap formatı tam olarak şöyle olsun:
-
-FİKİR 1
-...
-
-────────────
-
-FİKİR 2
-...
-
-────────────
-
-FİKİR 3
-...
-
-FİKRÂ notu: ...
-
-Kullanıcı isteği:
-${mesaj}
+Konu: ${mesaj}
 `;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-3-flash-preview:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -85,21 +40,22 @@ ${mesaj}
 
     const data = await response.json();
 
-    console.log("GEMINI RESPONSE:", JSON.stringify(data));
+    console.log("GEMINI:", data);
 
     if (!response.ok) {
-      return res.status(response.status).json({
-        fikir: data?.error?.message || "Gemini model hatası oluştu."
+      return res.status(500).json({
+        fikir: data?.error?.message || "Model hatası"
       });
     }
 
     const fikir =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Şu anda fikir üretilemedi. Lütfen tekrar dene.";
+      "Fikir üretilemedi.";
 
     return res.status(200).json({ fikir });
+
   } catch (error) {
-    console.log("SERVER ERROR:", error);
-    return res.status(500).json({ fikir: "Sunucu hatası oluştu." });
+    console.log(error);
+    return res.status(500).json({ fikir: "Sunucu hatası" });
   }
 }
