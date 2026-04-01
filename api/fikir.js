@@ -10,62 +10,46 @@ export default async function handler(req, res) {
       return res.status(400).json({ fikir: "Lütfen bir konu yaz." });
     }
 
-    const text = mesaj.toLocaleLowerCase("tr-TR");
+    const text = mesaj.toLowerCase();
 
+    // 🔒 Güvenlik filtresi
     const unsafeWords = [
-      "intihar",
-      "kendime zarar",
-      "kendimi öldür",
-      "öldür",
-      "yarala",
-      "bomba",
-      "silah yap",
-      "zehir",
-      "uyuşturucu",
-      "hackleme",
-      "dolandırıcılık",
-      "patlayıcı"
+      "intihar","kendime zarar","öldür","bomba","silah",
+      "uyuşturucu","hackleme","dolandırıcılık","zehir"
     ];
 
-    if (unsafeWords.some((w) => text.includes(w))) {
+    if (unsafeWords.some(w => text.includes(w))) {
       return res.status(200).json({
-        fikir:
-          "FİKRÂ bu konuda fikir veremez.\n\nBu konu tehlikeli, zarar verici ya da güvenlik açısından riskli görünüyor.\n\nİstersen bunun yerine güvenli ve yapıcı bir alternatif düşünebiliriz."
+        fikir: "FİKRÂ bu konuda fikir veremez.\n\nBu konu tehlikeli veya zararlı olabilir.\n\nİstersen başka bir konuda yardımcı olabilirim."
       });
     }
 
+    // 🧠 Gemini prompt
     const prompt = `
-Sen FİKRÂ adında Türkçe konuşan bir yapay fikir asistanısın.
+Sen FİKRÂ adında güçlü bir yapay fikir asistanısın.
 
-Kullanıcının yazdığı konuya göre:
-- Türkçe cevap ver
-- net, yaratıcı ve uygulanabilir fikirler üret
-- kısa değil, dolu cevap ver
-- 3 farklı fikir sun
-- her fikir ayrı başlık taşısın
-- sonunda kısa bir "FİKRÂ notu" ekle
-- tehlikeli, zarar verici, yasa dışı, kendine zarar verme, başkasına zarar verme, silah, patlayıcı, dolandırıcılık gibi konularda fikir verme
-- gerekirse kullanıcıyı güvenli ve yapıcı alternatife yönlendir
+Kurallar:
+- Türkçe yaz
+- 3 farklı fikir üret
+- fikirler uzun, açıklamalı ve uygulanabilir olsun
+- her fikir başlık ile başlasın
+- yaratıcı ol
+- tekrar etme
+- en sonda kısa "FİKRÂ notu" yaz
 
-Cevap formatı tam olarak şöyle olsun:
+Format:
 
 FİKİR 1
-...
-...
 ...
 
 ────────────
 
 FİKİR 2
 ...
-...
-...
 
 ────────────
 
 FİKİR 3
-...
-...
 ...
 
 FİKRÂ notu: ...
@@ -74,6 +58,7 @@ Kullanıcı isteği:
 ${mesaj}
 `;
 
+    // 🔥 DOĞRU MODEL BURADA
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -84,9 +69,7 @@ ${mesaj}
         body: JSON.stringify({
           contents: [
             {
-              parts: [
-                { text: prompt }
-              ]
+              parts: [{ text: prompt }]
             }
           ]
         })
@@ -96,17 +79,18 @@ ${mesaj}
     const data = await response.json();
 
     if (!response.ok) {
-      console.log("GEMINI ERROR:", JSON.stringify(data));
+      console.log("GEMINI ERROR:", data);
       return res.status(500).json({
-        fikir: data?.error?.message || "Gemini hata verdi."
+        fikir: "AI hata verdi. Anahtar veya model kontrol et."
       });
     }
 
     const fikir =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Şu anda fikir üretilemedi. Lütfen tekrar dene.";
+      "Şu anda fikir üretilemedi.";
 
     return res.status(200).json({ fikir });
+
   } catch (error) {
     console.log("SERVER ERROR:", error);
     return res.status(500).json({ fikir: "Sunucu hatası oluştu." });
