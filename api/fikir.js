@@ -10,15 +10,39 @@ export default async function handler(req, res) {
       return res.status(400).json({ fikir: "Lütfen bir konu yaz." });
     }
 
+    const text = mesaj.toLocaleLowerCase("tr-TR");
+
+    const unsafeWords = [
+      "intihar",
+      "kendime zarar",
+      "kendimi öldür",
+      "öldür",
+      "yarala",
+      "bomba",
+      "silah yap",
+      "zehir",
+      "uyuşturucu",
+      "hackleme",
+      "dolandırıcılık",
+      "patlayıcı"
+    ];
+
+    if (unsafeWords.some((w) => text.includes(w))) {
+      return res.status(200).json({
+        fikir:
+          "FİKRÂ bu konuda fikir veremez.\n\nBu konu tehlikeli, zarar verici ya da güvenlik açısından riskli görünüyor.\n\nİstersen bunun yerine güvenli ve yapıcı bir alternatif düşünebiliriz."
+      });
+    }
+
     const prompt = `
 Sen FİKRÂ adında Türkçe konuşan bir yapay fikir asistanısın.
 
 Kurallar:
-- Türkçe yaz
-- 3 farklı fikir üret
-- yaratıcı, uygulanabilir ve açıklamalı olsun
-- her fikir başlıkla başlasın
-- en sonda kısa bir "FİKRÂ notu" yaz
+- Türkçe yaz.
+- Kullanıcının konusuna göre 3 farklı fikir üret.
+- Fikirler yaratıcı, uygulanabilir ve açıklamalı olsun.
+- Her fikir ayrı başlıkla başlasın.
+- En sonda kısa bir "FİKRÂ notu" ekle.
 
 Cevap formatı şöyle olsun:
 
@@ -42,7 +66,7 @@ ${mesaj}
 `;
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -59,7 +83,6 @@ ${mesaj}
     );
 
     const data = await response.json();
-
     console.log("GEMINI RESPONSE:", JSON.stringify(data));
 
     if (!response.ok) {
