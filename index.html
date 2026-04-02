@@ -34,6 +34,7 @@
       --chip:#15233f;
       --card:#10192d;
       --overlay:rgba(2,6,12,.72);
+      --danger:#ff6b6b;
     }
 
     html, body{
@@ -103,6 +104,25 @@
       color:var(--muted);
       font-size:12px;
       margin-top:2px;
+    }
+
+    .top-actions{
+      display:flex;
+      justify-content:center;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .top-mini-btn{
+      background:#16233f;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:bold;
+      cursor:pointer;
     }
 
     .assistant-hero{
@@ -347,6 +367,24 @@
       font-size:16px;
     }
 
+    .idea-tools{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .tool-btn{
+      background:#1a2746;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:999px;
+      padding:8px 10px;
+      font-size:12px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
     .welcome-title{
       font-size:16px;
       font-weight:bold;
@@ -562,7 +600,7 @@
     .splash-dots span:nth-child(2){ animation-delay:.16s; }
     .splash-dots span:nth-child(3){ animation-delay:.32s; }
 
-    .guide-overlay{
+    .modal-overlay{
       position:fixed;
       inset:0;
       z-index:9998;
@@ -574,11 +612,11 @@
       padding:14px;
     }
 
-    .guide-overlay.show{
+    .modal-overlay.show{
       display:flex;
     }
 
-    .guide-card{
+    .modal-card{
       width:100%;
       max-width:520px;
       background:linear-gradient(180deg, #0f1830 0%, #0a1223 100%);
@@ -587,6 +625,8 @@
       padding:18px;
       box-shadow:0 20px 60px rgba(0,0,0,.35);
       animation:guideUp .35s ease;
+      max-height:84vh;
+      overflow-y:auto;
     }
 
     @keyframes guideUp{
@@ -594,14 +634,14 @@
       to{ transform:translateY(0); opacity:1; }
     }
 
-    .guide-top{
+    .modal-top{
       display:flex;
       align-items:center;
       gap:12px;
       margin-bottom:14px;
     }
 
-    .guide-top img{
+    .modal-top img{
       width:52px;
       height:52px;
       border-radius:14px;
@@ -609,13 +649,13 @@
       box-shadow:0 0 16px rgba(242,204,98,.18);
     }
 
-    .guide-top strong{
+    .modal-top strong{
       display:block;
       font-size:18px;
       margin-bottom:4px;
     }
 
-    .guide-top span{
+    .modal-top span{
       color:var(--muted);
       font-size:13px;
     }
@@ -663,10 +703,53 @@
       line-height:1.6;
     }
 
-    .guide-actions{
+    .modal-actions{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
+      margin-top:14px;
+    }
+
+    .list-box{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .saved-item{
+      text-align:left;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:16px;
+      padding:12px;
+    }
+
+    .saved-item strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:6px;
+      color:var(--gold);
+    }
+
+    .saved-item p{
+      margin:0 0 10px;
+      font-size:13px;
+      line-height:1.6;
+      color:#e5ebff;
+      white-space:pre-line;
+    }
+
+    .saved-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .empty-state{
+      text-align:center;
+      color:var(--muted);
+      font-size:14px;
+      padding:16px 8px;
     }
 
     @keyframes splashFloat{
@@ -706,7 +789,7 @@
         padding:14px;
       }
 
-      .guide-overlay{
+      .modal-overlay{
         align-items:center;
       }
     }
@@ -720,7 +803,7 @@
         font-size:16px;
       }
 
-      .guide-actions{
+      .modal-actions{
         grid-template-columns:1fr;
       }
     }
@@ -740,9 +823,9 @@
     </div>
   </div>
 
-  <div class="guide-overlay" id="guideOverlay">
-    <div class="guide-card">
-      <div class="guide-top">
+  <div class="modal-overlay" id="guideOverlay">
+    <div class="modal-card">
+      <div class="modal-top">
         <img src="logo.png" alt="FİKRÂ">
         <div>
           <strong>FİKRÂ’ya hoş geldin</strong>
@@ -770,15 +853,49 @@
         <div class="guide-step">
           <div class="guide-num">3</div>
           <div>
-            <strong>Başka fikir iste</strong>
-            <span>İstersen aynı konu için yeni fikirler üretmeye devam eder.</span>
+            <strong>Kaydet ve geliştir</strong>
+            <span>Fikirleri favorilere kaydet, daha yaratıcı yap veya sadeleştir.</span>
           </div>
         </div>
       </div>
 
-      <div class="guide-actions">
+      <div class="modal-actions">
         <button class="secondary" onclick="closeGuide()">Daha sonra</button>
         <button class="primary" onclick="startGuideTopic()">Hemen dene</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="favoritesOverlay">
+    <div class="modal-card">
+      <div class="modal-top">
+        <img src="logo.png" alt="FİKRÂ">
+        <div>
+          <strong>Favori fikirler</strong>
+          <span>Kaydettiğin fikirleri burada tutabilirsin.</span>
+        </div>
+      </div>
+      <div class="list-box" id="favoritesList"></div>
+      <div class="modal-actions">
+        <button class="secondary" onclick="closeFavorites()">Kapat</button>
+        <button class="primary" onclick="clearFavorites()">Tümünü temizle</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="historyOverlay">
+    <div class="modal-card">
+      <div class="modal-top">
+        <img src="logo.png" alt="FİKRÂ">
+        <div>
+          <strong>Son konuşmalar</strong>
+          <span>Son konuların burada saklanır.</span>
+        </div>
+      </div>
+      <div class="list-box" id="historyList"></div>
+      <div class="modal-actions">
+        <button class="secondary" onclick="closeHistory()">Kapat</button>
+        <button class="primary" onclick="clearHistory()">Geçmişi sil</button>
       </div>
     </div>
   </div>
@@ -795,6 +912,11 @@
 
       <img src="assistant.png" alt="FİKRÂ Asistanı" class="assistant-hero">
       <p class="hero-title">Sen yaz, FİKRÂ sana mobil uygulama gibi cevap versin.</p>
+
+      <div class="top-actions">
+        <button class="top-mini-btn" onclick="openFavorites()">Favoriler</button>
+        <button class="top-mini-btn" onclick="openHistory()">Geçmiş</button>
+      </div>
     </div>
 
     <div class="daily-card">
@@ -875,6 +997,7 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
 
   <script>
     let lastPrompt = "";
+    let lastAssistantText = "";
 
     const dailyIdeas = [
       {
@@ -975,6 +1098,132 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       fillTopic(item.topic);
     }
 
+    function saveHistory(prompt) {
+      if (!prompt) return;
+      const key = "fikra_history";
+      let history = JSON.parse(localStorage.getItem(key) || "[]");
+      history = history.filter(item => item !== prompt);
+      history.unshift(prompt);
+      history = history.slice(0, 15);
+      localStorage.setItem(key, JSON.stringify(history));
+    }
+
+    function getHistory() {
+      return JSON.parse(localStorage.getItem("fikra_history") || "[]");
+    }
+
+    function saveFavorite() {
+      if (!lastAssistantText) {
+        alert("Önce bir fikir al.");
+        return;
+      }
+
+      const key = "fikra_favorites";
+      let favorites = JSON.parse(localStorage.getItem(key) || "[]");
+
+      const item = {
+        id: Date.now(),
+        prompt: lastPrompt || "Genel fikir",
+        text: lastAssistantText
+      };
+
+      favorites.unshift(item);
+      favorites = favorites.slice(0, 30);
+      localStorage.setItem(key, JSON.stringify(favorites));
+      alert("Fikir favorilere kaydedildi.");
+    }
+
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem("fikra_favorites") || "[]");
+    }
+
+    function removeFavorite(id) {
+      let favorites = getFavorites().filter(item => item.id !== id);
+      localStorage.setItem("fikra_favorites", JSON.stringify(favorites));
+      renderFavorites();
+    }
+
+    function clearFavorites() {
+      localStorage.removeItem("fikra_favorites");
+      renderFavorites();
+    }
+
+    function clearHistory() {
+      localStorage.removeItem("fikra_history");
+      renderHistory();
+    }
+
+    function openFavorites() {
+      renderFavorites();
+      document.getElementById("favoritesOverlay").classList.add("show");
+    }
+
+    function closeFavorites() {
+      document.getElementById("favoritesOverlay").classList.remove("show");
+    }
+
+    function openHistory() {
+      renderHistory();
+      document.getElementById("historyOverlay").classList.add("show");
+    }
+
+    function closeHistory() {
+      document.getElementById("historyOverlay").classList.remove("show");
+    }
+
+    function renderFavorites() {
+      const list = document.getElementById("favoritesList");
+      const items = getFavorites();
+
+      if (!items.length) {
+        list.innerHTML = `<div class="empty-state">Henüz kaydedilmiş favori fikir yok.</div>`;
+        return;
+      }
+
+      list.innerHTML = items.map(item => `
+        <div class="saved-item">
+          <strong>${escapeHtml(item.prompt)}</strong>
+          <p>${escapeHtml(item.text).replace(/\n/g, "<br>")}</p>
+          <div class="saved-actions">
+            <button class="mini-btn gold" onclick="reuseFavorite(${item.id})">Tekrar kullan</button>
+            <button class="mini-btn" onclick="shareText(${JSON.stringify(item.text).replace(/"/g, '&quot;')})">Paylaş</button>
+            <button class="mini-btn" onclick="removeFavorite(${item.id})">Sil</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderHistory() {
+      const list = document.getElementById("historyList");
+      const items = getHistory();
+
+      if (!items.length) {
+        list.innerHTML = `<div class="empty-state">Henüz kayıtlı konuşma geçmişi yok.</div>`;
+        return;
+      }
+
+      list.innerHTML = items.map(item => `
+        <div class="saved-item">
+          <strong>${escapeHtml(item)}</strong>
+          <div class="saved-actions">
+            <button class="mini-btn gold" onclick="reuseHistory(${JSON.stringify(item).replace(/"/g, '&quot;')})">Yeniden sor</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function reuseFavorite(id) {
+      const item = getFavorites().find(x => x.id === id);
+      if (!item) return;
+      closeFavorites();
+      fillTopic(item.prompt);
+    }
+
+    function reuseHistory(text) {
+      closeHistory();
+      fillTopic(text);
+    }
+
     function addUserMessage(text) {
       const chatBody = document.getElementById("chatBody");
       const wrapper = document.createElement("div");
@@ -1011,11 +1260,25 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       if (el) el.remove();
     }
 
+    function assistantToolsHtml(text) {
+      return `
+        <div class="idea-tools">
+          <button class="tool-btn" onclick="saveFavorite()">Favorilere kaydet</button>
+          <button class="tool-btn" onclick="enhanceIdea('daha yaratıcı yap')">Daha yaratıcı</button>
+          <button class="tool-btn" onclick="enhanceIdea('daha sade anlat')">Daha sade</button>
+          <button class="tool-btn" onclick="enhanceIdea('bu fikri geliştir')">Bu fikri geliştir</button>
+          <button class="tool-btn" onclick="shareText(${JSON.stringify(text).replace(/"/g, '&quot;')})">Paylaş</button>
+        </div>
+      `;
+    }
+
     function formatAssistantContent(text) {
       const parts = String(text)
         .split("────────────")
         .map(part => part.trim())
         .filter(Boolean);
+
+      const tools = assistantToolsHtml(text);
 
       if (parts.length <= 1) {
         return `
@@ -1023,6 +1286,7 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
             <div class="idea-title">FİKRÂ cevabı</div>
             ${escapeHtml(text).replace(/\n/g, "<br>")}
           </div>
+          ${tools}
         `;
       }
 
@@ -1035,10 +1299,12 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
             </div>
           `).join("")}
         </div>
+        ${tools}
       `;
     }
 
     function addAssistantMessage(text) {
+      lastAssistantText = text;
       const chatBody = document.getElementById("chatBody");
       const wrapper = document.createElement("div");
       wrapper.className = "message assistant";
@@ -1092,6 +1358,7 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       if (!mesaj) return;
 
       lastPrompt = mesaj;
+      saveHistory(mesaj);
       input.value = "";
       autoResize(input);
       await requestIdeas(mesaj, true);
@@ -1146,6 +1413,37 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       await requestIdeas(assistantPrompt, false);
     }
 
+    async function enhanceIdea(mode) {
+      if (!lastAssistantText) {
+        addAssistantMessage("Önce bir fikir al, sonra onu geliştireyim.");
+        return;
+      }
+
+      const prompt = `${lastPrompt || "Bu konu"}\n\nÖnceki fikirler:\n${lastAssistantText}\n\nİstek: ${mode}.`;
+      await requestIdeas(prompt, false);
+    }
+
+    async function shareText(text) {
+      const shareData = {
+        title: "FİKRÂ",
+        text: text,
+        url: window.location.href
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+        } catch (e) {}
+      } else {
+        try {
+          await navigator.clipboard.writeText(text);
+          alert("Metin panoya kopyalandı.");
+        } catch (e) {
+          alert("Paylaşma desteklenmiyor.");
+        }
+      }
+    }
+
     function clearChat() {
       const chatBody = document.getElementById("chatBody");
       chatBody.innerHTML = `
@@ -1175,6 +1473,7 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       `;
       document.getElementById("mesaj").value = "";
       lastPrompt = "";
+      lastAssistantText = "";
       document.getElementById("mesaj").focus();
       scrollChatToBottom();
     }
