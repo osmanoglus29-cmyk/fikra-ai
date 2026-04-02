@@ -22,9 +22,6 @@
 
     :root{
       --bg:#060b14;
-      --bg-2:#0b1220;
-      --panel:#0e1728;
-      --panel-2:#121d33;
       --line:rgba(255,255,255,.08);
       --text:#ffffff;
       --muted:#9eabc7;
@@ -445,28 +442,40 @@
     .splash-inner{
       text-align:center;
       padding:24px;
+      width:100%;
+      max-width:420px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
     }
 
     .splash-logo{
-      width:160px;
-      max-width:55vw;
+      width:150px;
+      height:auto;
       display:block;
       margin:0 auto 18px;
       filter:drop-shadow(0 0 24px rgba(120,70,255,.45));
       animation:splashFloat 2.2s ease-in-out infinite;
     }
 
-    .splash-title{
-      margin:0;
-      font-size:42px;
+    .splash-brand{
+      font-size:38px;
       font-weight:800;
-      letter-spacing:.5px;
+      line-height:1;
+      letter-spacing:.8px;
+      color:#ffffff;
+      text-shadow:0 0 18px rgba(120,70,255,.28);
+      margin:0;
     }
 
-    .splash-sub{
-      margin:10px 0 0;
-      color:#b8c6eb;
+    .splash-tag{
+      margin-top:12px;
       font-size:15px;
+      color:#d8e0ff;
+      line-height:1.6;
+      max-width:280px;
+      text-align:center;
     }
 
     .splash-dots{
@@ -529,11 +538,16 @@
 
     @media (max-width:560px){
       .splash-logo{
-        width:140px;
+        width:130px;
       }
 
-      .splash-title{
-        font-size:34px;
+      .splash-brand{
+        font-size:32px;
+      }
+
+      .splash-tag{
+        font-size:14px;
+        max-width:250px;
       }
 
       .assistant-hero{
@@ -550,8 +564,8 @@
   <div class="splash" id="splashScreen">
     <div class="splash-inner">
       <img src="logo.png" alt="FİKRÂ Logo" class="splash-logo">
-      <h1 class="splash-title">FİKRÂ</h1>
-      <p class="splash-sub">Yapay fikir asistanı hazırlanıyor...</p>
+      <div class="splash-brand">FİKRÂ</div>
+      <div class="splash-tag">Yapay fikir asistanı hazırlanıyor...</div>
       <div class="splash-dots">
         <span></span>
         <span></span>
@@ -886,7 +900,7 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       const splash = document.getElementById("splashScreen");
       setTimeout(() => {
         splash.classList.add("hide");
-      }, 1800);
+      }, 2200);
     });
 
     scrollChatToBottom();
