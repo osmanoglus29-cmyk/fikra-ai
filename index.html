@@ -27,12 +27,9 @@
       --bg-1: #04070f;
       --bg-2: #08101d;
       --panel: rgba(11, 22, 40, 0.78);
-      --panel-2: rgba(17, 28, 52, 0.94);
-      --panel-3: #10192d;
       --line: rgba(255, 255, 255, 0.08);
       --text: #ffffff;
       --muted: #9eabc7;
-      --muted-2: #cfd8f7;
       --gold: #f2cc62;
       --gold-dark: #d8b04a;
       --purple: rgba(120, 70, 255, 0.5);
@@ -40,12 +37,8 @@
       --assistant: #111c34;
       --chip: #15233f;
       --success: #43d17a;
-      --danger: #ff6b6b;
       --shadow: 0 12px 35px rgba(0, 0, 0, 0.28);
       --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.35);
-      --radius-xl: 24px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
     }
 
     html,
@@ -240,7 +233,7 @@
       min-height: 0;
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: var(--radius-xl);
+      border-radius: 24px;
       overflow: hidden;
       box-shadow: var(--shadow);
     }
@@ -638,7 +631,7 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 24px;
       padding: 18px;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
       animation: modalUp .35s ease;
       max-height: 84vh;
       overflow-y: auto;
@@ -1008,6 +1001,7 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
   <script>
     let lastPrompt = "";
     let lastAssistantText = "";
+    let lastIdeas = [];
 
     const dailyIdeas = [
       {
@@ -1059,6 +1053,13 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       input.value = text;
       autoResize(input);
       input.focus();
+    }
+
+    function splitIdeas(text) {
+      return String(text)
+        .split("────────────")
+        .map(part => part.trim())
+        .filter(Boolean);
     }
 
     function getDayKey() {
@@ -1126,8 +1127,11 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       return JSON.parse(localStorage.getItem("fikra_favorites") || "[]");
     }
 
-    function saveFavorite() {
-      if (!lastAssistantText) {
+    function saveFavorite(customText = null, customTitle = null) {
+      const textToSave = customText || lastAssistantText;
+      const titleToSave = customTitle || lastPrompt || "Genel fikir";
+
+      if (!textToSave) {
         alert("Önce bir fikir al.");
         return;
       }
@@ -1137,8 +1141,8 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
 
       const item = {
         id: Date.now(),
-        prompt: lastPrompt || "Genel fikir",
-        text: lastAssistantText
+        prompt: titleToSave,
+        text: textToSave
       };
 
       favorites.unshift(item);
@@ -1192,12 +1196,14 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
 
       list.innerHTML = items.map(item => {
         const safeText = encodeURIComponent(item.text);
+        const safePrompt = encodeURIComponent(item.prompt);
         return `
           <div class="saved-item">
             <strong>${escapeHtml(item.prompt)}</strong>
             <p>${escapeHtml(item.text).replace(/\n/g, "<br>")}</p>
             <div class="saved-actions">
               <button class="mini-btn gold" onclick="reuseFavorite(${item.id})">Tekrar kullan</button>
+              <button class="mini-btn" onclick="generateShareImage(decodeURIComponent('${safeText}'), decodeURIComponent('${safePrompt}'))">Görsel</button>
               <button class="mini-btn" onclick="shareText(decodeURIComponent('${safeText}'))">Paylaş</button>
               <button class="mini-btn" onclick="removeFavorite(${item.id})">Sil</button>
             </div>
@@ -1276,47 +1282,49 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       if (el) el.remove();
     }
 
-    function assistantToolsHtml(text) {
+    function ideaToolsHtml(ideaText, ideaTitle, ideaIndex) {
+      const safeText = encodeURIComponent(ideaText);
+      const safeTitle = encodeURIComponent(ideaTitle);
       return `
         <div class="idea-tools">
-          <button class="tool-btn" onclick="saveFavorite()">Favorilere kaydet</button>
-          <button class="tool-btn" onclick="enhanceIdea('daha yaratıcı yap')">Daha yaratıcı</button>
-          <button class="tool-btn" onclick="enhanceIdea('daha sade anlat')">Daha sade</button>
-          <button class="tool-btn" onclick="enhanceIdea('bu fikri geliştir')">Bu fikri geliştir</button>
-          <button class="tool-btn" onclick="generateShareImage()">Görsel oluştur</button>
-          <button class="tool-btn" onclick="shareText(lastAssistantText)">Paylaş</button>
+          <button class="tool-btn" onclick="saveFavorite(decodeURIComponent('${safeText}'), decodeURIComponent('${safeTitle}'))">Favoriye ekle</button>
+          <button class="tool-btn" onclick="enhanceIdeaFromSelected(decodeURIComponent('${safeText}'), 'daha yaratıcı yap')">Daha yaratıcı</button>
+          <button class="tool-btn" onclick="enhanceIdeaFromSelected(decodeURIComponent('${safeText}'), 'daha sade anlat')">Daha sade</button>
+          <button class="tool-btn" onclick="enhanceIdeaFromSelected(decodeURIComponent('${safeText}'), 'bu fikri geliştir')">Bu fikri geliştir</button>
+          <button class="tool-btn" onclick="generateShareImage(decodeURIComponent('${safeText}'), decodeURIComponent('${safeTitle}'))">Görsel oluştur</button>
+          <button class="tool-btn" onclick="shareText(decodeURIComponent('${safeText}'))">Paylaş</button>
         </div>
       `;
     }
 
     function formatAssistantContent(text) {
-      const parts = String(text)
-        .split("────────────")
-        .map(part => part.trim())
-        .filter(Boolean);
-
-      const tools = assistantToolsHtml(text);
+      const parts = splitIdeas(text);
+      lastIdeas = parts;
 
       if (parts.length <= 1) {
+        const title = lastPrompt || "FİKRÂ cevabı";
         return `
           <div class="idea-card">
             <div class="idea-title">FİKRÂ cevabı</div>
             ${escapeHtml(text).replace(/\n/g, "<br>")}
+            ${ideaToolsHtml(text, title, 0)}
           </div>
-          ${tools}
         `;
       }
 
       return `
         <div class="ideas-grid">
-          ${parts.map((part, index) => `
-            <div class="idea-card">
-              <div class="idea-title">Fikir ${index + 1}</div>
-              ${escapeHtml(part).replace(/\n/g, "<br>")}
-            </div>
-          `).join("")}
+          ${parts.map((part, index) => {
+            const title = `Fikir ${index + 1}`;
+            return `
+              <div class="idea-card">
+                <div class="idea-title">${title}</div>
+                ${escapeHtml(part).replace(/\n/g, "<br>")}
+                ${ideaToolsHtml(part, title, index)}
+              </div>
+            `;
+          }).join("")}
         </div>
-        ${tools}
       `;
     }
 
@@ -1440,6 +1448,16 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       await requestIdeas(prompt, false);
     }
 
+    async function enhanceIdeaFromSelected(selectedIdea, mode) {
+      if (!selectedIdea) {
+        addAssistantMessage("Önce bir fikir seç.");
+        return;
+      }
+
+      const prompt = `${lastPrompt || "Bu konu"}\n\nSeçilen fikir:\n${selectedIdea}\n\nİstek: ${mode}.`;
+      await requestIdeas(prompt, false);
+    }
+
     async function shareText(text) {
       if (!text) {
         alert("Paylaşılacak metin yok.");
@@ -1466,8 +1484,11 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       }
     }
 
-    function generateShareImage() {
-      if (!lastAssistantText) {
+    function generateShareImage(selectedText = null, selectedTitle = null) {
+      const textToRender = selectedText || lastAssistantText;
+      const titleToRender = selectedTitle || (lastPrompt || "FİKRÂ fikri");
+
+      if (!textToRender) {
         alert("Önce bir fikir al.");
         return;
       }
@@ -1501,12 +1522,16 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
 
         ctx.fillStyle = "#aab7da";
         ctx.font = "32px Arial";
-        ctx.fillText("Yapay fikir asistanı", 540, 435);
+        ctx.fillText("Yapay fikir asistanı", 540, 440);
+
+        ctx.fillStyle = "#f2cc62";
+        ctx.font = "bold 34px Arial";
+        ctx.fillText(titleToRender, 540, 530);
 
         ctx.fillStyle = "rgba(255,255,255,0.05)";
-        roundRect(ctx, 90, 530, 900, 1020, 34, true, false);
+        roundRect(ctx, 90, 590, 900, 1020, 34, true, false);
 
-        drawMultilineText(ctx, lastAssistantText, 540, 630, 760, 50);
+        drawMultilineText(ctx, textToRender, 540, 690, 760, 50);
 
         ctx.fillStyle = "#f2cc62";
         ctx.font = "bold 28px Arial";
@@ -1606,6 +1631,7 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       document.getElementById("mesaj").value = "";
       lastPrompt = "";
       lastAssistantText = "";
+      lastIdeas = [];
       document.getElementById("mesaj").focus();
       scrollChatToBottom();
     }
