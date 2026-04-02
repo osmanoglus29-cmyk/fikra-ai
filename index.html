@@ -21,7 +21,6 @@
     }
 
     :root{
-      --bg:#060b14;
       --line:rgba(255,255,255,.08);
       --text:#ffffff;
       --muted:#9eabc7;
@@ -33,6 +32,8 @@
       --success:#43d17a;
       --shadow:0 12px 35px rgba(0,0,0,.28);
       --chip:#15233f;
+      --card:#10192d;
+      --overlay:rgba(2,6,12,.72);
     }
 
     html, body{
@@ -126,12 +127,75 @@
       opacity:.92;
     }
 
+    .daily-card{
+      margin:10px 10px 0;
+      background:linear-gradient(145deg, #111d38, #0b1430);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:20px;
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+
+    .daily-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .daily-top strong{
+      font-size:15px;
+      color:var(--gold);
+    }
+
+    .daily-badge{
+      font-size:11px;
+      color:#111;
+      background:var(--gold);
+      padding:5px 8px;
+      border-radius:999px;
+      font-weight:bold;
+      flex-shrink:0;
+    }
+
+    .daily-text{
+      font-size:14px;
+      color:#e7ecff;
+      line-height:1.65;
+      text-align:left;
+      margin-bottom:12px;
+    }
+
+    .daily-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .mini-btn{
+      background:#1a2746;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:9px 12px;
+      font-size:13px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .mini-btn.gold{
+      background:var(--gold);
+      color:#111;
+      border:none;
+    }
+
     .chat-shell{
       flex:1;
       display:flex;
       flex-direction:column;
       min-height:0;
-      padding:0 10px 10px;
+      padding:10px 10px 10px;
     }
 
     .chat-panel{
@@ -451,7 +515,7 @@
     }
 
     .splash-logo{
-      width:150px;
+      width:130px;
       height:auto;
       display:block;
       margin:0 auto 18px;
@@ -460,7 +524,7 @@
     }
 
     .splash-brand{
-      font-size:38px;
+      font-size:32px;
       font-weight:800;
       line-height:1;
       letter-spacing:.8px;
@@ -471,10 +535,10 @@
 
     .splash-tag{
       margin-top:12px;
-      font-size:15px;
+      font-size:14px;
       color:#d8e0ff;
       line-height:1.6;
-      max-width:280px;
+      max-width:250px;
       text-align:center;
     }
 
@@ -497,6 +561,113 @@
 
     .splash-dots span:nth-child(2){ animation-delay:.16s; }
     .splash-dots span:nth-child(3){ animation-delay:.32s; }
+
+    .guide-overlay{
+      position:fixed;
+      inset:0;
+      z-index:9998;
+      background:var(--overlay);
+      backdrop-filter:blur(10px);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding:14px;
+    }
+
+    .guide-overlay.show{
+      display:flex;
+    }
+
+    .guide-card{
+      width:100%;
+      max-width:520px;
+      background:linear-gradient(180deg, #0f1830 0%, #0a1223 100%);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:24px;
+      padding:18px;
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+      animation:guideUp .35s ease;
+    }
+
+    @keyframes guideUp{
+      from{ transform:translateY(20px); opacity:0; }
+      to{ transform:translateY(0); opacity:1; }
+    }
+
+    .guide-top{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .guide-top img{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      object-fit:cover;
+      box-shadow:0 0 16px rgba(242,204,98,.18);
+    }
+
+    .guide-top strong{
+      display:block;
+      font-size:18px;
+      margin-bottom:4px;
+    }
+
+    .guide-top span{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .guide-steps{
+      display:grid;
+      gap:10px;
+      margin:14px 0 18px;
+    }
+
+    .guide-step{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      text-align:left;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:16px;
+      padding:12px;
+    }
+
+    .guide-num{
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      background:var(--gold);
+      color:#111;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      font-weight:bold;
+      flex-shrink:0;
+    }
+
+    .guide-step strong{
+      display:block;
+      font-size:14px;
+      margin-bottom:4px;
+    }
+
+    .guide-step span{
+      font-size:13px;
+      color:#dfe6ff;
+      line-height:1.6;
+    }
+
+    .guide-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
 
     @keyframes splashFloat{
       0%{transform:translateY(0);}
@@ -534,28 +705,23 @@
       .chat-input-wrap{
         padding:14px;
       }
+
+      .guide-overlay{
+        align-items:center;
+      }
     }
 
     @media (max-width:560px){
-      .splash-logo{
-        width:130px;
-      }
-
-      .splash-brand{
-        font-size:32px;
-      }
-
-      .splash-tag{
-        font-size:14px;
-        max-width:250px;
-      }
-
       .assistant-hero{
         width:300px;
       }
 
       textarea{
         font-size:16px;
+      }
+
+      .guide-actions{
+        grid-template-columns:1fr;
       }
     }
   </style>
@@ -574,6 +740,49 @@
     </div>
   </div>
 
+  <div class="guide-overlay" id="guideOverlay">
+    <div class="guide-card">
+      <div class="guide-top">
+        <img src="logo.png" alt="FİKRÂ">
+        <div>
+          <strong>FİKRÂ’ya hoş geldin</strong>
+          <span>2 dakikada mantığı kap, hemen kullanmaya başla.</span>
+        </div>
+      </div>
+
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="guide-num">1</div>
+          <div>
+            <strong>Konu yaz</strong>
+            <span>Aşk, iş, para, içerik, yazılım, hayat... Ne istiyorsan yaz.</span>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">2</div>
+          <div>
+            <strong>3 farklı fikir al</strong>
+            <span>FİKRÂ aynı konu için sana farklı açılardan güçlü öneriler üretir.</span>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">3</div>
+          <div>
+            <strong>Başka fikir iste</strong>
+            <span>İstersen aynı konu için yeni fikirler üretmeye devam eder.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-actions">
+        <button class="secondary" onclick="closeGuide()">Daha sonra</button>
+        <button class="primary" onclick="startGuideTopic()">Hemen dene</button>
+      </div>
+    </div>
+  </div>
+
   <div class="app">
     <div class="top-area">
       <div class="mini-brand">
@@ -586,6 +795,20 @@
 
       <img src="assistant.png" alt="FİKRÂ Asistanı" class="assistant-hero">
       <p class="hero-title">Sen yaz, FİKRÂ sana mobil uygulama gibi cevap versin.</p>
+    </div>
+
+    <div class="daily-card">
+      <div class="daily-top">
+        <strong>Günün fikri</strong>
+        <div class="daily-badge" id="dailyBadge">Bugün</div>
+      </div>
+      <div class="daily-text" id="dailyIdeaText">
+        Bugün küçük ama net bir adım seç. Büyük değişimler çoğu zaman küçük ama dürüst başlangıçlarla gelir.
+      </div>
+      <div class="daily-actions">
+        <button class="mini-btn gold" onclick="useDailyIdeaTopic()">Bu konuda fikir al</button>
+        <button class="mini-btn" onclick="nextDailyIdea()">Başka günlük fikir</button>
+      </div>
     </div>
 
     <div class="chat-shell">
@@ -653,6 +876,37 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
   <script>
     let lastPrompt = "";
 
+    const dailyIdeas = [
+      {
+        text: "Bugün küçük ama net bir adım seç. Büyük değişimler çoğu zaman küçük ama dürüst başlangıçlarla gelir.",
+        topic: "Hayatımı düzene sokmak için fikir ver"
+      },
+      {
+        text: "Bir konuda sıkıştıysan her şeyi aynı anda çözmeye çalışma. Önce tek bir problemi seç.",
+        topic: "Kararsız kaldığım konuda fikir ver"
+      },
+      {
+        text: "Üretkenlik istiyorsan meşgul görünmek yerine tek bir önemli işi bitirmeye odaklan.",
+        topic: "Üretkenlik için fikir ver"
+      },
+      {
+        text: "Para yönetiminde ilk güç kontrolle başlar. Önce nereye harcadığını gör.",
+        topic: "Para yönetimi için fikir ver"
+      },
+      {
+        text: "İçerik üretiminde kusursuzluk değil, düzenli paylaşım çoğu zaman daha çok büyütür.",
+        topic: "İçerik üretmek için fikir ver"
+      },
+      {
+        text: "Aşkta netlik, belirsizlikten daha değerlidir. Karşındaki kişinin davranışlarına bak.",
+        topic: "Aşk konusunda fikir ver"
+      },
+      {
+        text: "Yazılım öğrenirken en hızlı gelişim küçük çalışan projelerle gelir.",
+        topic: "Yazılım öğrenmek için fikir ver"
+      }
+    ];
+
     function escapeHtml(text) {
       return String(text)
         .replace(/&/g, "&amp;")
@@ -672,6 +926,53 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       input.value = text;
       autoResize(input);
       input.focus();
+    }
+
+    function getDayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
+
+    function getDailyIndex() {
+      const key = getDayKey();
+      let total = 0;
+      for (let i = 0; i < key.length; i++) {
+        total += key.charCodeAt(i);
+      }
+      return total % dailyIdeas.length;
+    }
+
+    function renderDailyIdea(index) {
+      const item = dailyIdeas[index];
+      document.getElementById("dailyIdeaText").innerText = item.text;
+      document.getElementById("dailyBadge").innerText = "Bugün";
+      localStorage.setItem("fikra_daily_index", String(index));
+    }
+
+    function initDailyIdea() {
+      const storedDay = localStorage.getItem("fikra_daily_day");
+      const today = getDayKey();
+
+      if (storedDay !== today) {
+        localStorage.setItem("fikra_daily_day", today);
+        localStorage.setItem("fikra_daily_index", String(getDailyIndex()));
+      }
+
+      const index = Number(localStorage.getItem("fikra_daily_index") || getDailyIndex());
+      renderDailyIdea(index);
+    }
+
+    function nextDailyIdea() {
+      const current = Number(localStorage.getItem("fikra_daily_index") || 0);
+      const next = (current + 1) % dailyIdeas.length;
+      renderDailyIdea(next);
+      document.getElementById("dailyBadge").innerText = "Ekstra";
+    }
+
+    function useDailyIdeaTopic() {
+      const index = Number(localStorage.getItem("fikra_daily_index") || 0);
+      const item = dailyIdeas[index];
+      fillTopic(item.topic);
     }
 
     function addUserMessage(text) {
@@ -883,6 +1184,25 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       el.style.height = Math.min(el.scrollHeight, 150) + "px";
     }
 
+    function closeGuide() {
+      localStorage.setItem("fikra_guide_seen", "yes");
+      document.getElementById("guideOverlay").classList.remove("show");
+    }
+
+    function startGuideTopic() {
+      closeGuide();
+      fillTopic("Kendim için en iyi başlangıç fikrini ver");
+    }
+
+    function maybeShowGuide() {
+      const seen = localStorage.getItem("fikra_guide_seen");
+      if (!seen) {
+        setTimeout(() => {
+          document.getElementById("guideOverlay").classList.add("show");
+        }, 2600);
+      }
+    }
+
     const mesajInput = document.getElementById("mesaj");
 
     mesajInput.addEventListener("input", function() {
@@ -901,6 +1221,9 @@ Hızlı başlamak istersen aşağıdan bir konu seç:
       setTimeout(() => {
         splash.classList.add("hide");
       }, 2200);
+
+      initDailyIdea();
+      maybeShowGuide();
     });
 
     scrollChatToBottom();
