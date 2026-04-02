@@ -1,718 +1,140 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>FİKRÂ | Yapay Fikir Asistanı</title>
-  <meta name="theme-color" content="#08101e" />
-  <style>
-    *{
-      box-sizing:border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
-    :root{
-      --bg:#060b14;
-      --bg-2:#0b1220;
-      --panel:#0e1728;
-      --panel-2:#121d33;
-      --line:rgba(255,255,255,.08);
-      --text:#ffffff;
-      --muted:#9eabc7;
-      --gold:#f2cc62;
-      --gold-dark:#d8b04a;
-      --purple:rgba(120,70,255,.50);
-      --user:#23356b;
-      --assistant:#111c34;
-      --success:#43d17a;
-      --shadow:0 12px 35px rgba(0,0,0,.28);
-    }
+<title>FİKRÂ</title>
 
-    html, body{
-      margin:0;
-      padding:0;
-      background:
-        radial-gradient(circle at top, rgba(109,40,217,.18), transparent 28%),
-        linear-gradient(180deg, #04070f 0%, #08101d 100%);
-      color:var(--text);
-      font-family:Arial, sans-serif;
-      min-height:100%;
-    }
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#08101e">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 
-    body{
-      overflow-x:hidden;
-    }
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#050a15;
+  color:white;
+  text-align:center;
+}
 
-    .app{
-      width:100%;
-      max-width:520px;
-      margin:0 auto;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      position:relative;
-    }
+.logo{
+  width:180px;
+  margin-top:30px;
+  filter:drop-shadow(0 0 25px #6d28d9);
+}
 
-    .top-area{
-      padding:14px 14px 10px;
-      text-align:center;
-      position:sticky;
-      top:0;
-      z-index:10;
-      backdrop-filter:blur(12px);
-      background:linear-gradient(180deg, rgba(6,11,20,.95), rgba(6,11,20,.78));
-      border-bottom:1px solid rgba(255,255,255,.04);
-    }
+.title{
+  font-size:34px;
+  font-weight:bold;
+}
 
-    .mini-brand{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      margin-bottom:8px;
-    }
+.sub{
+  color:#aaa;
+  margin-bottom:20px;
+}
 
-    .mini-brand img.logo{
-      width:42px;
-      height:42px;
-      object-fit:cover;
-      border-radius:12px;
-      box-shadow:0 0 16px rgba(242,204,98,.22);
-    }
+textarea{
+  width:90%;
+  height:80px;
+  border-radius:15px;
+  border:none;
+  padding:15px;
+  font-size:16px;
+  background:#0f172a;
+  color:white;
+}
 
-    .mini-brand .brand-text{
-      text-align:left;
-    }
+button{
+  margin:10px;
+  padding:12px 20px;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+}
 
-    .mini-brand .brand-text strong{
-      display:block;
-      font-size:18px;
-      line-height:1.1;
-    }
+.main{
+  background:#f2cc62;
+}
 
-    .mini-brand .brand-text span{
-      display:block;
-      color:var(--muted);
-      font-size:12px;
-      margin-top:2px;
-    }
+.secondary{
+  background:#1e293b;
+  color:white;
+}
 
-    .assistant-hero{
-      width:160px;
-      max-width:54%;
-      display:block;
-      margin:6px auto 6px;
-      filter:drop-shadow(0 0 20px var(--purple));
-      animation:float 3.2s ease-in-out infinite;
-    }
-
-    @keyframes float{
-      0%{transform:translateY(0);}
-      50%{transform:translateY(-8px);}
-      100%{transform:translateY(0);}
-    }
-
-    .hero-title{
-      font-size:14px;
-      color:#d8e0ff;
-      margin:0;
-      opacity:.92;
-    }
-
-    .chat-shell{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-      padding:0 10px 10px;
-    }
-
-    .chat-panel{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-      background:rgba(11,22,40,.72);
-      border:1px solid var(--line);
-      border-radius:24px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-    }
-
-    .chat-header{
-      padding:12px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      gap:10px;
-      background:rgba(255,255,255,.02);
-    }
-
-    .chat-avatar{
-      width:42px;
-      height:42px;
-      border-radius:12px;
-      object-fit:cover;
-      background:#0a0f1f;
-      box-shadow:0 0 14px rgba(120,70,255,.22);
-      flex-shrink:0;
-    }
-
-    .chat-meta{
-      flex:1;
-      min-width:0;
-      text-align:left;
-    }
-
-    .chat-meta strong{
-      display:block;
-      font-size:15px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .chat-meta span{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin-top:2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .status{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      color:#d7ffe5;
-      font-size:11px;
-      flex-shrink:0;
-    }
-
-    .status-dot{
-      width:9px;
-      height:9px;
-      border-radius:50%;
-      background:var(--success);
-      box-shadow:0 0 10px rgba(67,209,122,.65);
-    }
-
-    .chat-body{
-      flex:1;
-      min-height:0;
-      overflow-y:auto;
-      padding:14px 12px 18px;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      scroll-behavior:smooth;
-    }
-
-    .message{
-      display:flex;
-      width:100%;
-    }
-
-    .message.user{
-      justify-content:flex-end;
-    }
-
-    .message.assistant{
-      justify-content:flex-start;
-    }
-
-    .bubble{
-      max-width:88%;
-      border-radius:20px;
-      padding:14px;
-      border:1px solid var(--line);
-      box-shadow:0 10px 22px rgba(0,0,0,.18);
-      line-height:1.7;
-      font-size:15px;
-    }
-
-    .message.user .bubble{
-      background:linear-gradient(145deg, #273c78, var(--user));
-      border-bottom-right-radius:8px;
-    }
-
-    .message.assistant .bubble{
-      background:linear-gradient(145deg, #152342, var(--assistant));
-      border-bottom-left-radius:8px;
-    }
-
-    .message-label{
-      display:block;
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-      color:#aab7da;
-      margin-bottom:8px;
-    }
-
-    .ideas-grid{
-      display:grid;
-      gap:12px;
-      margin-top:8px;
-    }
-
-    .idea-card{
-      background:linear-gradient(145deg, #0f1b3a, #0b1430);
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:16px;
-      padding:14px;
-      line-height:1.75;
-      color:#e6e9f7;
-      box-shadow:0 8px 22px rgba(0,0,0,.22);
-      white-space:pre-line;
-    }
-
-    .idea-title{
-      font-weight:bold;
-      margin-bottom:8px;
-      color:var(--gold);
-      font-size:16px;
-    }
-
-    .typing{
-      display:inline-flex;
-      gap:6px;
-      align-items:center;
-      height:18px;
-    }
-
-    .typing span{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:#dce3ff;
-      opacity:.4;
-      animation:blink 1.2s infinite ease-in-out;
-    }
-
-    .typing span:nth-child(2){ animation-delay:.15s; }
-    .typing span:nth-child(3){ animation-delay:.3s; }
-
-    @keyframes blink{
-      0%, 80%, 100%{ transform:scale(.8); opacity:.35; }
-      40%{ transform:scale(1.08); opacity:1; }
-    }
-
-    .chat-input-wrap{
-      border-top:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-      padding:12px;
-      position:sticky;
-      bottom:0;
-    }
-
-    .composer{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    textarea{
-      width:100%;
-      min-height:64px;
-      max-height:150px;
-      resize:none;
-      padding:14px 16px;
-      border:none;
-      outline:none;
-      border-radius:18px;
-      background:#10182d;
-      color:#fff;
-      font-size:16px;
-      line-height:1.5;
-      border:1px solid rgba(255,255,255,.06);
-    }
-
-    textarea::placeholder{
-      color:#91a0c3;
-    }
-
-    .action-row{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:8px;
-    }
-
-    button{
-      border:none;
-      border-radius:14px;
-      min-height:46px;
-      padding:0 12px;
-      font-size:14px;
-      font-weight:bold;
-      cursor:pointer;
-      transition:.2s ease;
-    }
-
-    button:active{
-      transform:scale(.98);
-    }
-
-    .primary{
-      background:var(--gold);
-      color:#111;
-    }
-
-    .primary:hover{
-      background:var(--gold-dark);
-    }
-
-    .secondary{
-      background:#18233f;
-      color:#fff;
-      border:1px solid rgba(255,255,255,.08);
-    }
-
-    .secondary:hover{
-      background:#223053;
-    }
-
-    .bottom-note{
-      text-align:center;
-      color:#93a1c8;
-      font-size:12px;
-      line-height:1.6;
-      padding:10px 14px 4px;
-    }
-
-    @media (min-width:700px){
-      .app{
-        max-width:760px;
-      }
-
-      .assistant-hero{
-        width:200px;
-      }
-
-      .bubble{
-        font-size:16px;
-      }
-
-      .idea-title{
-        font-size:18px;
-      }
-
-      .action-row{
-        grid-template-columns:repeat(3, 170px);
-        justify-content:center;
-      }
-
-      .chat-input-wrap{
-        padding:14px;
-      }
-    }
-  </style>
+.box{
+  margin:20px;
+  padding:20px;
+  background:#0f172a;
+  border-radius:15px;
+}
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="top-area">
-      <div class="mini-brand">
-        <img src="logo.png" alt="FİKRÂ Logo" class="logo">
-        <div class="brand-text">
-          <strong>FİKRÂ</strong>
-          <span>Mobil yapay fikir asistanı</span>
-        </div>
-      </div>
 
-      <img src="assistant.png" alt="FİKRÂ Asistanı" class="assistant-hero">
-      <p class="hero-title">Sen yaz, FİKRÂ sana mobil uygulama gibi cevap versin.</p>
-    </div>
+<img src="logo.png" class="logo">
 
-    <div class="chat-shell">
-      <div class="chat-panel">
-        <div class="chat-header">
-          <img src="assistant.png" alt="FİKRÂ Avatar" class="chat-avatar">
-          <div class="chat-meta">
-            <strong>FİKRÂ aktif</strong>
-            <span>Anlık analiz • 3 fikir üretimi • Mobil sürüm</span>
-          </div>
-          <div class="status">
-            <span class="status-dot"></span>
-            <span>Canlı</span>
-          </div>
-        </div>
+<div class="title">FİKRÂ</div>
+<div class="sub">Gerçek yapay fikir asistanı</div>
 
-        <div class="chat-body" id="chatBody">
-          <div class="message assistant">
-            <div class="bubble">
-              <span class="message-label">FİKRÂ</span>
-              Merhaba. Sana fikir vermek için hazırım.
+<textarea id="mesaj" placeholder="Ne hakkında fikir istiyorsun?"></textarea>
 
-Ne hakkında fikir istiyorsun?
+<br>
 
-Örnek konular:
-- aşk
-- kariyer
-- yazılım
-- para yönetimi
-- kişisel bakım
-- içerik üretimi
-            </div>
-          </div>
-        </div>
+<button class="main" onclick="getIdea()">Fikir Ver</button>
+<button class="secondary" onclick="getMore()">Başka Fikir</button>
 
-        <div class="chat-input-wrap">
-          <div class="composer">
-            <textarea
-              id="mesaj"
-              placeholder="Ne hakkında fikir istiyorsun?"
-            ></textarea>
+<div class="box" id="sonuc">FİKRÂ öneriyor...</div>
 
-            <div class="action-row">
-              <button class="primary" onclick="getIdea()">Fikir Ver</button>
-              <button class="secondary" onclick="getMoreIdeas()">Başka Fikir</button>
-              <button class="secondary" onclick="clearChat()">Temizle</button>
-            </div>
-          </div>
-        </div>
-      </div>
+<script>
+let last = "";
 
-      <div class="bottom-note">
-        FİKRÂ yazdığın konuya göre analiz eder ve sana özel fikirler üretir.
-      </div>
-    </div>
-  </div>
+async function getIdea(){
+  let mesaj = document.getElementById("mesaj").value.trim();
+  if(!mesaj) return;
 
-  <script>
-    let lastPrompt = "";
+  last = mesaj;
 
-    function escapeHtml(text) {
-      return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+  document.getElementById("sonuc").innerText = "Düşünüyor...";
 
-    function scrollChatToBottom() {
-      const chatBody = document.getElementById("chatBody");
-      chatBody.scrollTop = chatBody.scrollHeight;
-    }
+  let res = await fetch("/api/fikir",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({mesaj})
+  });
 
-    function addUserMessage(text) {
-      const chatBody = document.getElementById("chatBody");
-      const wrapper = document.createElement("div");
-      wrapper.className = "message user";
-      wrapper.innerHTML = `
-        <div class="bubble">
-          <span class="message-label">Sen</span>
-          ${escapeHtml(text).replace(/\n/g, "<br>")}
-        </div>
-      `;
-      chatBody.appendChild(wrapper);
-      scrollChatToBottom();
-    }
+  let data = await res.json();
+  document.getElementById("sonuc").innerText = data.fikir;
+}
 
-    function addTypingMessage() {
-      const chatBody = document.getElementById("chatBody");
-      const wrapper = document.createElement("div");
-      wrapper.className = "message assistant";
-      wrapper.id = "typingMessage";
-      wrapper.innerHTML = `
-        <div class="bubble">
-          <span class="message-label">FİKRÂ</span>
-          <div class="typing">
-            <span></span><span></span><span></span>
-          </div>
-        </div>
-      `;
-      chatBody.appendChild(wrapper);
-      scrollChatToBottom();
-    }
+async function getMore(){
+  if(!last) return;
 
-    function removeTypingMessage() {
-      const el = document.getElementById("typingMessage");
-      if (el) el.remove();
-    }
+  document.getElementById("sonuc").innerText = "Yeni fikirler üretiliyor...";
 
-    function formatAssistantContent(text) {
-      const parts = String(text)
-        .split("────────────")
-        .map(part => part.trim())
-        .filter(Boolean);
+  let res = await fetch("/api/fikir",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({mesaj:last + " farklı fikirler üret"})
+  });
 
-      if (parts.length <= 1) {
-        return `
-          <div class="idea-card">
-            <div class="idea-title">FİKRÂ cevabı</div>
-            ${escapeHtml(text).replace(/\n/g, "<br>")}
-          </div>
-        `;
-      }
+  let data = await res.json();
+  document.getElementById("sonuc").innerText = data.fikir;
+}
+</script>
 
-      return `
-        <div class="ideas-grid">
-          ${parts.map((part, index) => `
-            <div class="idea-card">
-              <div class="idea-title">Fikir ${index + 1}</div>
-              ${escapeHtml(part).replace(/\n/g, "<br>")}
-            </div>
-          `).join("")}
-        </div>
-      `;
-    }
+<!-- SERVICE WORKER -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js');
+  });
+}
+</script>
 
-    function addAssistantMessage(text) {
-      const chatBody = document.getElementById("chatBody");
-      const wrapper = document.createElement("div");
-      wrapper.className = "message assistant";
-      wrapper.innerHTML = `
-        <div class="bubble">
-          <span class="message-label">FİKRÂ</span>
-          ${formatAssistantContent(text)}
-        </div>
-      `;
-      chatBody.appendChild(wrapper);
-      scrollChatToBottom();
-    }
-
-    async function requestIdeas(mesaj, showUserMessage = true) {
-      if (!mesaj) return;
-
-      if (showUserMessage) {
-        addUserMessage(mesaj);
-      }
-
-      addTypingMessage();
-
-      try {
-        const res = await fetch("/api/fikir", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ mesaj })
-        });
-
-        const data = await res.json();
-        removeTypingMessage();
-
-        if (!res.ok) {
-          addAssistantMessage(data?.fikir || "Bir hata oluştu.");
-          return;
-        }
-
-        addAssistantMessage(data?.fikir || "Şu anda fikir üretilemedi.");
-      } catch (err) {
-        removeTypingMessage();
-        addAssistantMessage("Hata oluştu.");
-      }
-    }
-
-    async function getIdea() {
-      const input = document.getElementById("mesaj");
-      const mesaj = input.value.trim();
-
-      if (!mesaj) return;
-
-      lastPrompt = mesaj;
-      input.value = "";
-      autoResize(input);
-      await requestIdeas(mesaj, true);
-    }
-
-    async function getMoreIdeas() {
-      const input = document.getElementById("mesaj");
-      const currentInput = input.value.trim();
-      let promptToUse = currentInput || lastPrompt;
-
-      if (!promptToUse) {
-        addAssistantMessage("Önce bir konu yaz ya da bir kez fikir al. Sonra sana başka fikirler de verebilirim.");
-        return;
-      }
-
-      lastPrompt = promptToUse;
-      const assistantPrompt = `${promptToUse}\n\nAynı konu için önceki cevapları tekrar etmeden 3 yeni fikir üret.`;
-
-      if (currentInput) {
-        input.value = "";
-        autoResize(input);
-        addUserMessage(promptToUse + " (başka fikirler)");
-        addTypingMessage();
-
-        try {
-          const res = await fetch("/api/fikir", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ mesaj: assistantPrompt })
-          });
-
-          const data = await res.json();
-          removeTypingMessage();
-
-          if (!res.ok) {
-            addAssistantMessage(data?.fikir || "Bir hata oluştu.");
-            return;
-          }
-
-          addAssistantMessage(data?.fikir || "Şu anda fikir üretilemedi.");
-        } catch (err) {
-          removeTypingMessage();
-          addAssistantMessage("Hata oluştu.");
-        }
-
-        return;
-      }
-
-      addAssistantMessage("Aynı konu için sana yeni fikirler üretiyorum...");
-      await requestIdeas(assistantPrompt, false);
-    }
-
-    function clearChat() {
-      const chatBody = document.getElementById("chatBody");
-      chatBody.innerHTML = `
-        <div class="message assistant">
-          <div class="bubble">
-            <span class="message-label">FİKRÂ</span>
-            Merhaba. Sana fikir vermek için hazırım.
-
-Ne hakkında fikir istiyorsun?
-
-Örnek konular:
-- aşk
-- kariyer
-- yazılım
-- para yönetimi
-- kişisel bakım
-- içerik üretimi
-          </div>
-        </div>
-      `;
-      document.getElementById("mesaj").value = "";
-      lastPrompt = "";
-      document.getElementById("mesaj").focus();
-      scrollChatToBottom();
-    }
-
-    function autoResize(el) {
-      el.style.height = "auto";
-      el.style.height = Math.min(el.scrollHeight, 150) + "px";
-    }
-
-    const mesajInput = document.getElementById("mesaj");
-
-    mesajInput.addEventListener("input", function() {
-      autoResize(this);
-    });
-
-    mesajInput.addEventListener("keydown", function(e) {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        getIdea();
-      }
-    });
-
-    scrollChatToBottom();
-  </script>
 </body>
 </html>
