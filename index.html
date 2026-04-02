@@ -35,6 +35,7 @@
       --assistant:#111c34;
       --success:#43d17a;
       --shadow:0 12px 35px rgba(0,0,0,.28);
+      --chip:#15233f;
     }
 
     html, body{
@@ -285,6 +286,35 @@
       font-size:16px;
     }
 
+    .welcome-title{
+      font-size:16px;
+      font-weight:bold;
+      color:var(--gold);
+      margin-bottom:8px;
+    }
+
+    .quick-topics{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .quick-chip{
+      background:var(--chip);
+      color:#e6ecff;
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:13px;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .quick-chip:hover{
+      background:#1b2b4c;
+    }
+
     .typing{
       display:inline-flex;
       gap:6px;
@@ -391,7 +421,6 @@
       padding:10px 14px 4px;
     }
 
-    /* Splash Screen */
     .splash{
       position:fixed;
       inset:0;
@@ -507,10 +536,6 @@
         font-size:34px;
       }
 
-      .page{
-        padding:18px 10px 36px;
-      }
-
       .assistant-hero{
         width:300px;
       }
@@ -567,17 +592,24 @@
           <div class="message assistant">
             <div class="bubble">
               <span class="message-label">FİKRÂ</span>
-              Merhaba. Sana fikir vermek için hazırım.
+              <div class="welcome-title">Sana en uygun fikri bulalım.</div>
+              Bir konu yaz, ben sana o konuda 3 farklı fikir üreteyim.
 
-Ne hakkında fikir istiyorsun?
+Örnek:
+- aşk için ne yapmalıyım
+- para kazanmak için fikir ver
+- içerik üretmek istiyorum
+- yazılım öğreniyorum ama zorlanıyorum
+- çocukla kaliteli vakit fikirleri
 
-Örnek konular:
-- aşk
-- kariyer
-- yazılım
-- para yönetimi
-- kişisel bakım
-- içerik üretimi
+Hızlı başlamak istersen aşağıdan bir konu seç:
+              <div class="quick-topics">
+                <button class="quick-chip" onclick="fillTopic('Aşk için fikir ver')">Aşk</button>
+                <button class="quick-chip" onclick="fillTopic('İş fikri ver')">İş</button>
+                <button class="quick-chip" onclick="fillTopic('Para kazanma fikri ver')">Para</button>
+                <button class="quick-chip" onclick="fillTopic('İçerik üretimi için fikir ver')">İçerik</button>
+                <button class="quick-chip" onclick="fillTopic('Yazılım öğreniyorum, bana yol göster')">Yazılım</button>
+              </div>
             </div>
           </div>
         </div>
@@ -619,6 +651,13 @@ Ne hakkında fikir istiyorsun?
     function scrollChatToBottom() {
       const chatBody = document.getElementById("chatBody");
       chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function fillTopic(text) {
+      const input = document.getElementById("mesaj");
+      input.value = text;
+      autoResize(input);
+      input.focus();
     }
 
     function addUserMessage(text) {
@@ -798,17 +837,24 @@ Ne hakkında fikir istiyorsun?
         <div class="message assistant">
           <div class="bubble">
             <span class="message-label">FİKRÂ</span>
-            Merhaba. Sana fikir vermek için hazırım.
+            <div class="welcome-title">Sana en uygun fikri bulalım.</div>
+            Bir konu yaz, ben sana o konuda 3 farklı fikir üreteyim.
 
-Ne hakkında fikir istiyorsun?
+Örnek:
+- aşk için ne yapmalıyım
+- para kazanmak için fikir ver
+- içerik üretmek istiyorum
+- yazılım öğreniyorum ama zorlanıyorum
+- çocukla kaliteli vakit fikirleri
 
-Örnek konular:
-- aşk
-- kariyer
-- yazılım
-- para yönetimi
-- kişisel bakım
-- içerik üretimi
+Hızlı başlamak istersen aşağıdan bir konu seç:
+            <div class="quick-topics">
+              <button class="quick-chip" onclick="fillTopic('Aşk için fikir ver')">Aşk</button>
+              <button class="quick-chip" onclick="fillTopic('İş fikri ver')">İş</button>
+              <button class="quick-chip" onclick="fillTopic('Para kazanma fikri ver')">Para</button>
+              <button class="quick-chip" onclick="fillTopic('İçerik üretimi için fikir ver')">İçerik</button>
+              <button class="quick-chip" onclick="fillTopic('Yazılım öğreniyorum, bana yol göster')">Yazılım</button>
+            </div>
           </div>
         </div>
       `;
